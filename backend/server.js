@@ -2,8 +2,9 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
-// Import database connection
+// Import database connection and initialization
 const pool = require('./config/database');
+const { initializeDatabase } = require('./database/init-db');
 
 // Import routes
 const authRoutes = require('./routes/authRoutes');
@@ -58,12 +59,24 @@ app.get('/', (req, res) => {
   });
 });
 
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    service: 'Smart Scheduler API'
+  });
+});
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📡 API available at http://localhost:${PORT}`);
   console.log(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth`);
   console.log(`👥 Group endpoints: http://localhost:${PORT}/api/groups`);
   console.log(`📅 Event endpoints: http://localhost:${PORT}/api/events`);
   console.log(`🤝 Meeting endpoints: http://localhost:${PORT}/api/meetings`);
+  
+  // Initialize database
+  await initializeDatabase();
 });
